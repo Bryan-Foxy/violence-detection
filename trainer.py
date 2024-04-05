@@ -1,4 +1,4 @@
-from models import build_model
+from cnnlstm import build_model
 import config
 import dataset
 import tensorflow as tf
@@ -13,14 +13,19 @@ if __name__ == '__main__':
 
     # Build the model
     cnn_lstm, img_output = build_model(config.input_shape)
-    hybrid_model = tf.keras.Model(inputs = img_output, outputs = [cnn_lstm, img_output])
+    hybrid_model = tf.keras.Model(inputs = img_output, outputs = [cnn_lstm], name = 'CNN_LSTM')
     print(hybrid_model.summary())
 
-    hybrid_model.compile(loss='binary_crossentropy', optimizer=tf.keras.optimizers.Adam(learning_rate = config.lr), metrics=['accuracy','accuracy']) # Compile the model
+    hybrid_model.compile(loss='binary_crossentropy', optimizer=tf.keras.optimizers.Adam(learning_rate = config.lr), metrics=['accuracy']) # Compile the model
 
     # Training
     history = hybrid_model.fit(train_loader,
-                    steps_per_epoch = config.steps_per_epoch, validation_data = test_loader, validation_steps = config.validation_steps, epochs=config.epochs)
+                    steps_per_epoch = config.steps_per_epoch, validation_data = test_loader, 
+                    validation_steps = config.validation_steps, epochs=config.epochs,
+                    callbacks=[config.early_stopping, config.model_checkpoint, config.tensorboard_callback])
+    
+    # Save the model after the training
+    hybrid_model.save('saves/checkpoint/last.h5')
 
 
 
