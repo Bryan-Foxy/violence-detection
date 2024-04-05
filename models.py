@@ -1,34 +1,40 @@
 import tensorflow as tf
-import config
 
-# Define input shape
-input_shape = config.input_shape
+def spatial_block(input, filters, strides, pool_size, pool_stride):
+    '''
+    '''
+    x = tf.keras.layers.Conv3D(filters, strides, padding = 'same')(input)
+    x = tf.keras.layers.LeakyReLU()(x)
+    x = tf.keras.layers.MaxPooling3D(pool_size = pool_size, strides = pool_stride, padding = 'same')(x)
+    x = tf.keras.layers.Conv3D(filters, strides, padding = 'same')(x)
+    x = tf.keras.layers.LeakyReLU()(x)
+    x = tf.keras.layers.MaxPooling3D(pool_size = pool_size, strides = pool_stride, padding = 'same')(x)
+    return x 
 
-# Define input layer
-inputs = tf.keras.layers.Input(shape=input_shape)
+def temporal_block(input, units, filter):
+    '''
+    '''
+    x = tf.keras.layers.ConvLSTM2D(units, filter)(input)
+    x = tf.keras.layers.Flatten()(x)
+    return x 
 
-# Create the model
-model = tf.keras.Sequential([
-    inputs,
-    tf.keras.layers.Conv3D(32, kernel_size=3, padding="same", activation="relu"),
-    tf.keras.layers.MaxPooling3D(),
-    tf.keras.layers.Conv3D(64, kernel_size=3, padding="same", activation="relu"),
-    tf.keras.layers.MaxPooling3D(),
-    tf.keras.layers.Conv3D(128, kernel_size=3, padding="same", activation="relu"),
-    tf.keras.layers.MaxPooling3D(),
-    tf.keras.layers.Dropout(0.3),
-    tf.keras.layers.TimeDistributed(tf.keras.layers.LSTM(units=64, activation='tanh', return_sequences=True)), # Add LSTM layer
-    tf.keras.layers.Dropout(0.3), # Add dropout layer after LSTM
-    tf.keras.layers.Dense(256, activation='relu'), # Dense layer with ReLU activation
-    tf.keras.layers.Dense(1, activation='sigmoid') # Output layer with sigmoid activation for binary classification
-])
+def build_model(input):
+    '''
+    '''
+    # Input
+    img_input = tf.keras.layers.Input(shape=input)
+    padded_input = tf.keras.layers.ZeroPadding3D(padding=((0,6), (0,6), (0,0)))(img_input)
+    # Spatial Block
+    x = spatial_block(padded_input, 32, strides = (3,3,3), pool_size = (2,2,2), pool_stride = (2,2,2))
+    x = spatial_block(x, 64, strides = (3,3,3), pool_size = (2,2,2), pool_stride = (2,2,2))
+    x = spatial_block(x, 128, strides = (3,3,3), pool_size = (2,2,2), pool_stride = (2,2,2))
+    x = tf.keras.layers.BatchNormalization()(x)
+    # Temporal Block
+    x = temporal_block(x, units = 100, filter = (3,3))
 
-# Compile the model with binary cross-entropy loss and Adam optimizer
-model.compile(
-    loss=tf.keras.losses.BinaryCrossentropy(),  # Use binary cross-entropy for binary classification
-    optimizer=tf.keras.optimizers.Adam(0.001),
-    metrics=["accuracy"]
-)
+    # MultiLayer Perceptron
+    x = tf.keras.layers.Dense(units = 128)(x)
+    x = tf.keras.layers.LeakyReLU()(x) 
+    x = tf.keras.layers.Dense(1, activation='sigmoid')(x)
+    return x, img_input
 
-# Display the model summary
-model.summary()

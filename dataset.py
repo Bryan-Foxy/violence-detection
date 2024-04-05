@@ -19,7 +19,7 @@ def load_video_path():
         video_paths += sub_video_paths
         targets += [i] * len(sub_video_paths)
     
-    return video_paths[0:10], targets[0:10]
+    return video_paths[0:100], targets[0:100]
 
 def load_video_and_transform(video_paths):
     # Load video and transform it in frame for manipulation
