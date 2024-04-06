@@ -48,4 +48,7 @@ if __name__ == '__main__':
     train_dataset, test_dataset, train_y_dataset, test_y_dataset = split_data(video_dataset, targets)
     train_loader, test_loader = create_loader(train_dataset, test_dataset, train_y_dataset, test_y_dataset)
     print('Datas are ready!')
+    for X,y in train_loader.take(1):
+        print(X.shape)
+        print(y.shape)
 

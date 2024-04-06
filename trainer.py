@@ -1,6 +1,8 @@
 from cnnlstm import build_model
+from sklearn.metrics import classification_report, confusion_matrix
 import config
 import dataset
+import matplotlib.pyplot as plt
 import tensorflow as tf
 
 
@@ -24,8 +26,29 @@ if __name__ == '__main__':
                     validation_steps = config.validation_steps, epochs=config.epochs,
                     callbacks=[config.early_stopping, config.model_checkpoint, config.tensorboard_callback])
     
+    # History
+    train_loss = history.history['loss']
+    val_loss = history.history['val_loss']
+    train_acc = history.history['accuracy']
+    val_acc = history.history['val_accuracy']
+    epochs_range = range(1, len(train_loss) + 1)
+
+    # Figure
+    plt.plot(epochs_range, train_loss, 'b', label='Training loss')
+    plt.plot(epochs_range, val_loss, 'r', label='Validation loss')
+    plt.title('Training and validation loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.show()
+    
     # Save the model after the training
     hybrid_model.save('saves/checkpoint/last.h5')
+
+    # Evaluation
+    predictions = hybrid_model.predict(test_loader)
+    predictions = [1 if pred > 0.5 else 0 for pred in predictions]
+    print(classification_report(test_y_dataset, predictions))
 
 
 
