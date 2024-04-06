@@ -29,7 +29,7 @@ def classes(preds):
     return cls
 
 def write_prediction_on_video(video_path, prediction, output_path):
-    # This function load video, write the prediction and save the new video 
+    # This function loads the video, writes the prediction, and saves the new video
 
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
@@ -44,20 +44,26 @@ def write_prediction_on_video(video_path, prediction, output_path):
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     out = cv2.VideoWriter(output_path, fourcc, 20.0, (width, height))
 
+    # Define the position and size of the box
+    box_x, box_y = 20, 20  # Top-left corner position of the box
+    box_width, box_height = 200, 50  # Width and height of the box
+
     # Loop through the frames of the video and write the prediction
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
 
-        # Write the prediction on the frame
+        # Draw the colored box as background for the prediction text
         if prediction == 1:
-            text = "Violent"
-            color = (0, 0, 255)  # Red for "Violent"
+            box_color = (0, 0, 255)  # Red for "Violent"
         else:
-            text = "No Violent"
-            color = (0, 255, 0)  # Green for "No Violent"
-        cv2.putText(frame, text, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+            box_color = (0, 255, 0)  # Green for "No Violent"
+        cv2.rectangle(frame, (box_x, box_y), (box_x + box_width, box_y + box_height), box_color, -1)  # Draw filled rectangle
+
+        # Write the prediction on the frame
+        text = "Violent" if prediction == 1 else "No Violent"
+        cv2.putText(frame, text, (box_x + 10, box_y + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)  # White text
 
         # Write the frame with the prediction to the output video
         out.write(frame)
@@ -86,7 +92,7 @@ if __name__ == '__main__':
 
     # We will make a prediction on one video
     target = 0
-    path_video = '../video_data/real life violence situations/Real Life Violence Dataset/NonViolence/NV_237.mp4' 
+    path_video = '../video_data/real life violence situations/Real Life Violence Dataset/NonViolence/NV_9.mp4' 
 
     # Make the inference
     test = prepare_inference(path_video, target)

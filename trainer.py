@@ -1,5 +1,5 @@
 from cnnlstm import build_model
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report
 import config
 import dataset
 import matplotlib.pyplot as plt
