@@ -22,8 +22,8 @@ if __name__ == '__main__':
 
     # Training
     history = hybrid_model.fit(train_loader,
-                    steps_per_epoch = config.steps_per_epoch, validation_data = test_loader, 
-                    validation_steps = config.validation_steps, epochs=config.epochs,
+                    validation_data = test_loader, 
+                    epochs=config.epochs,
                     callbacks=[config.early_stopping, config.model_checkpoint, config.tensorboard_callback])
     
     # History
