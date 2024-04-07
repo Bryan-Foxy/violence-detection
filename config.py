@@ -16,7 +16,7 @@ log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 tensorboard_callback = TensorBoard(log_dir=log_dir, histogram_freq=1)
 
 cls = ['NonViolence', 'Violence']
-input_shape = (None, 224, 224, 3)
+input_shape = (10, 224, 224, 3)
 
 
 # Release memory
