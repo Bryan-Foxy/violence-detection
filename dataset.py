@@ -35,6 +35,13 @@ def split_data(dataset, target):
                                                                                     test_size = .2, random_state = 42)
     return train_dataset, test_dataset, train_y_dataset, test_y_dataset
 
+def normalize(train, test):
+    # Put the data in scale of 0 to 1
+    train_dataset = train / 255.0
+    test_dataset = test / 255.0
+    return train_dataset, test_dataset
+
+
 def create_loader(train_dataset, test_dataset, train_y_dataset, test_y_dataset):
     # Create and inject data in dataloader
     train_loader = tf.data.Dataset.from_tensor_slices((train_dataset, train_y_dataset)).shuffle(config.batch * 4).batch(config.batch).cache().prefetch(tf.data.AUTOTUNE)
@@ -46,6 +53,7 @@ if __name__ == '__main__':
     video_paths, targets = load_video_path()
     video_dataset = load_video_and_transform(video_paths)
     train_dataset, test_dataset, train_y_dataset, test_y_dataset = split_data(video_dataset, targets)
+    train_dataset, test_dataset = normalize(train_dataset, test_dataset)
     train_loader, test_loader = create_loader(train_dataset, test_dataset, train_y_dataset, test_y_dataset)
     print('Datas are ready!')
     for X,y in train_loader.take(1):
