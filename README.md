@@ -1,14 +1,14 @@
 # Video Classification
 
+<img src = "saves/gif/man_stan.gif" width = 40% height = 40%>
+
 ## Introduction
 
-In this project, we have developed an interesting model that combines Convolution 3D and LSTM to capture spatial and temporal information in videos.
-
-The objective of our work here is to efficiently and accurately identify violent and non-violent videos using the neural network.
+In this project, we present a sophisticated model that combines Convolutional 3D (C3D) and Long Short-Term Memory (LSTM) architectures to effectively capture spatial and temporal information in videos. The goal of our work is to accurately classify videos into violent and non-violent categories using deep neural networks.
 
 **Model Weights**
 
-The model weights are not available in the GitHub repository. To access them, please visit [this Google Drive link](https://drive.google.com/drive/folders/1Ar8gs1rSR7QXci-kcJ_u8yFuujqQuump?usp=sharing).
+The model weights are not included in the GitHub repository. You can access them through [this Google Drive link](https://drive.google.com/drive/folders/1Ar8gs1rSR7QXci-kcJ_u8yFuujqQuump?usp=sharing).
 
 ## Dependencies and Installation
 - Python >= 3.7 (We recommend using [Anaconda](https://www.anaconda.com/download/#linux) or [Miniconda](https://docs.conda.io/en/latest/miniconda.html))
@@ -16,37 +16,76 @@ The model weights are not available in the GitHub repository. To access them, pl
 
 ### Installation
 
-```bash
-pip install -r requirements.txt
-```
-
-After that, download the TensorFlow documentation:
-
-```bash
-pip install -q git+https://github.com/tensorflow/docs
-```
-
-**Next, download this repository from our GitHub:**
+**First, clone this repository from GitHub:**
 
 ```bash
 git clone https://github.com/Bryan-Foxy/violence-detection/tree/main
 cd violence-detection-main
 ```
 
-----
+Then, install the TensorFlow documentation:
+
+```bash
+pip install -q git+https://github.com/tensorflow/docs
+```
+
+Install all the required dependencies with specific versions used in our project:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Dataset
+We have split the dataset into frames, with each video yielding 10 frames. These frames are grouped into batches of 32 and normalized before being injected into the `tf.data.Dataset`. Normalization ensures that the pixel values fall within a standardized range, aiding in model convergence and performance.
+
+## Model
+We have developed two models: `C3D_LSTM` and `C3D`. 
+The primary objective is to capture both spatial and temporal features effectively. 
+
+### C3D Model
+The C3D model is inspired by the paper titled ["Learning Spatiotemporal Features with 3D Convolutional Networks"](https://www.cv-foundation.org/openaccess/content_iccv_2015/papers/Tran_Learning_Spatiotemporal_Features_ICCV_2015_paper.pdf). It utilizes 3D convolutional layers to simultaneously capture spatial and temporal features in videos.
+
+### C3D_LSTM Model
+The C3D_LSTM model, a personalized variant, addresses the computational complexity and energy consumption associated with the C3D model. By reducing the number of filters and incorporating ConvLSTM2D layers, it achieves similar performance while being more resource-efficient.
+
+### Key Differences
+The ConvLSTM2D layer within the C3D_LSTM model introduces a memory component that captures long-term temporal information. This is crucial for video classification tasks as it combines spatial feature extraction capabilities with sequential modeling abilities.
+
+## Training
+The trained model showcased here is the C3D_LSTM, boasting 4.5 million parameters compared to the C3D's 147 million. It was trained on a CPU with 32 GB of RAM. For faster training, consider utilizing a CPU or cloud-based platforms like Google Colab or Kaggle Notebook.
+
+The model underwent 12 epochs, utilizing the Adam optimizer with a learning rate of 2e-4 and Binary Cross-Entropy Loss. Given that the output is binary (violent or non-violent), a sigmoid activation function is employed in the final neuron.
+
+Training the C3D_LSTM model took approximately 36 minutes, resulting in an accuracy of 87%. Further performance enhancements can be achieved through data augmentation, although the model was trained on a modest dataset of only 329 videos without augmentation.
+
 ## Inference
-The `inference.py` file is used to test the pre-trained model. Simply change the video path in the code to your own video, and you're good to go.
+The `inference.py` script facilitates testing of the pre-trained model. Simply specify the path to your video file within the code, and the script will generate predictions.
 
-### How it Works
-After preparing the videos by dividing them into several frames and batching them into 32, we directly pass the data into a model to capture the spatial and temporal information of the videos. In the last neuron output, we use `sigmoid` because the problem here is binary (either Violent or Not Violent).
+### Workflow
+The inference process involves preprocessing the videos by splitting them into frames and batching them. These batches are then fed into the model to extract spatial and temporal information, followed by overlaying the model's predictions onto the video frames for visual interpretation.
 
-### Testing
-Here, we load the test videos and evaluate them with the training data. To visualize the model output, we have implemented a function to load the video path as input, prepare it like the training data, inject it into the model, and then put the obtained output into a box (green if non-violent and red otherwise) on the video for better visibility and interpretation of the model.
+### Usage
 
-Here is an example after testing our model:
-<p>
-    <img src="saves/gif/archer-_NV_.gif">
-    <img src="saves/gif/friends-_NV_.gif">
-    <img src="saves/gif/violent-guy.gif">
-</p>
+**First, download the weight and it the folder saves/checkpoint**
 
+To utilize the C3D_LSTM model for inference:
+
+```bash
+python inference.py -i "input.mp4" -o "output.mp4"
+```
+
+Here, `-i` denotes the path to the input video, and `-o` specifies the path to save the output video. Please ensure the video is located in the same directory as `inference.py`.
+
+Check out an example showcasing the model's performance:
+
+![Violence Detection Demo](saves/gif/man_stand.gif)
+
+
+## Other Demo
+
+![Violence Detection Demo](saves/gif/violent-guy.gif)
+![Violence Detection Demo](saves/gif/friends-_NV_.gif)
+![Violence Detection Demo](saves/gif/archer-_NV_.gif)
+![Violence Detection Demo](saves/gif/fight2.gif)
+
+Thank you for your attention.

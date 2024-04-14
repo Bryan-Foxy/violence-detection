@@ -1,15 +1,16 @@
+import argparse
 import cv2
 import tensorflow as tf
 import functions_tools as F
-import dataset
 import config
 
 def prepare_inference(path_video, target):
-    # Prepare the data for the inference
+    # Prepare the data for inference
 
-    test_ = F.frame_from_video(path_video, n_frames = 10)
+    test_ = F.frame_from_video(path_video, n_frames=10)
     test_ = tf.expand_dims(test_, axis=0)
     target_tensor = tf.constant([target] * len(test_), dtype=tf.float32)
+    test_ = test_ / 255.0 # Suppose pixel are 2⁸
     test = tf.data.Dataset.from_tensor_slices((test_, target_tensor)).batch(config.batch).cache().prefetch(tf.data.AUTOTUNE)
 
     return test
@@ -44,9 +45,9 @@ def write_prediction_on_video(video_path, prediction, output_path):
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     out = cv2.VideoWriter(output_path, fourcc, 20.0, (width, height))
 
-    # Define the position and size of the box
-    box_x, box_y = 20, 20  # Top-left corner position of the box
-    box_width, box_height = 200, 50  # Width and height of the box
+    # Define the position and size of the box (adjusted for top-left corner and reduced size)
+    box_x, box_y = 10, 10  # Top-left corner position of the box
+    box_width, box_height = 100, 30  # Reduced width and height of the box
 
     # Loop through the frames of the video and write the prediction
     while cap.isOpened():
@@ -63,7 +64,7 @@ def write_prediction_on_video(video_path, prediction, output_path):
 
         # Write the prediction on the frame
         text = "Violent" if prediction == 1 else "No Violent"
-        cv2.putText(frame, text, (box_x + 10, box_y + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)  # White text
+        cv2.putText(frame, text, (box_x + 5, box_y + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)  # White text
 
         # Write the frame with the prediction to the output video
         out.write(frame)
@@ -74,32 +75,25 @@ def write_prediction_on_video(video_path, prediction, output_path):
     cv2.destroyAllWindows()
 
 
+def main(args):
+    # Load the model
+    hybrid_model = tf.keras.models.load_model('saves/checkpoint/model.keras')
 
-if __name__ == '__main__':
-    # Dataset
-    video_paths, targets = dataset.load_video_path()
-    video_dataset = dataset.load_video_and_transform(video_paths)
-    train_dataset, test_dataset, train_y_dataset, test_y_dataset = dataset.split_data(video_dataset, targets)
-    train_loader, test_loader = dataset.create_loader(train_dataset, test_dataset, train_y_dataset, test_y_dataset)
-
-    # CNN-LSTM Hybrid model
-    # Load the model 
-    hybrid_model = tf.keras.models.load_model('saves/checkpoint/last.h5')
-
-    # Evaluation
-    loss, acc = hybrid_model.evaluate(test_loader, verbose = 2)
-    print('Restored model, accuracy: {:5.2f}%'.format(100 * acc))
-
-    # We will make a prediction on one video
+    # We will make a prediction on the provided video
     target = 0
-    path_video = '../video_data/real life violence situations/Real Life Violence Dataset/NonViolence/NV_9.mp4' 
 
     # Make the inference
-    test = prepare_inference(path_video, target)
+    test = prepare_inference(args.input, target)
     preds = prediction(hybrid_model, test)
     cls = classes(preds)
-    print('The prediction is : {} ==> {}'.format(preds, cls))
+    print('The prediction is: {} ==> {}'.format(preds, cls))
 
     # Make plot
-    output_path = 'saves/outputs/predicted_video.avi'
-    write_prediction_on_video(path_video, preds[0], output_path)
+    write_prediction_on_video(args.input, preds[0], args.output)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Perform inference on a video.")
+    parser.add_argument("-i", "--input", required=True, help="Path to the input video file.")
+    parser.add_argument("-o", "--output", required=True, help="Path to save the output video file.")
+    args = parser.parse_args()
+    main(args)
