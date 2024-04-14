@@ -8,7 +8,7 @@ import numpy as np
 import os
 
 # Load the model
-model = tf.keras.models.load_model('saves/checkpoint/last.h5')
+model = tf.keras.models.load_model('saves/checkpoint/model.keras')
 
 
 def predict_violence(video_path):
