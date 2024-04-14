@@ -86,6 +86,36 @@ Check out an example showcasing the model's performance:
 ![Violence Detection Demo](saves/gif/man_stand.gif)
 
 
+## Gradio Interface
+
+We have integrated a Gradio interface for a more interactive experience with our model. This interface allows users to upload a video and receive an output video with the prediction tag (green for non-violent, red for violent) directly overlaid on the frames.
+
+### Running the Gradio App
+
+To run the Gradio app, follow these steps:
+
+1. Ensure you have all the necessary dependencies installed. If not, you can install them using the `requirements.txt` file:
+
+```bash 
+pip install -r requirements.txt
+```
+2. Run the Gradio interface script:
+
+```bash 
+python gradio_interface.py
+```
+
+This command will start the Gradio app, and you will be provided with a URL to access the interface. You can then upload a video, and the app will process it and display the output video with the prediction tag.
+
+### Usage
+
+- Upload a video file through the Gradio interface.
+- Wait for the processing to complete. The interface will display the output video with the prediction tag overlaid on it.
+- You can download the processed video directly from the interface.
+
+This Gradio interface provides a user-friendly way to interact with our model and visualize its predictions on videos.
+
+
 ## Other Demo
 
 ![Violence Detection Demo](saves/gif/violent-guy.gif)
