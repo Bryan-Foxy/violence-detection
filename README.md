@@ -52,11 +52,16 @@ The C3D_LSTM model, a personalized variant, addresses the computational complexi
 The ConvLSTM2D layer within the C3D_LSTM model introduces a memory component that captures long-term temporal information. This is crucial for video classification tasks as it combines spatial feature extraction capabilities with sequential modeling abilities.
 
 ## Training
-The trained model showcased here is the C3D_LSTM, boasting 4.5 million parameters compared to the C3D's 147 million. It was trained on a CPU with 32 GB of RAM. For faster training, consider utilizing a CPU or cloud-based platforms like Google Colab or Kaggle Notebook.
+The trained model showcased here is the **C3D_LSTM, boasting 4.5 million parameters** compared to the **C3D's 147 million**. It was trained on a CPU with 32 GB of RAM. For faster training, consider utilizing a GPU or cloud-based platforms like Google Colab or Kaggle Notebook.
 
 The model underwent 12 epochs, utilizing the Adam optimizer with a learning rate of 2e-4 and Binary Cross-Entropy Loss. Given that the output is binary (violent or non-violent), a sigmoid activation function is employed in the final neuron.
 
-Training the C3D_LSTM model took approximately 36 minutes, resulting in an accuracy of 87%. Further performance enhancements can be achieved through data augmentation, although the model was trained on a modest dataset of only 329 videos without augmentation.
+The training of the C3D_LSTM model lasted 36 minutes. This duration encompassed the utilization of 80% of the dataset for training, equivalent to approximately 1600 videos, with the remaining 20% reserved for testing, totaling 329 videos. During the training phase, the model exhibited commendable performance, achieving an accuracy of **93%**. Upon evaluation on the test dataset, the model maintained a robust performance with an accuracy of **87%**. Notably, the model's generalization capacity is impressive, evident from its ability to achieve a **95%** accuracy when subjected to a separate test set comprising 200 videos. This underscores the model's capability to effectively generalize across a diverse spectrum of examples.
+
+## Test
+The script `test.py` serves a dual purpose: it functions both as an inference tool and as a means to evaluate the model. Upon accessing the file, users have the ability to input the file path of a video, which subsequently yields a new video appended with prediction tags.
+
+<i>To conduct expedited testing, `inference.py` suffices. However, for more comprehensive analysis and the rapid loading of multiple video files, `test.py` offers greater utility.</i>
 
 ## Inference
 The `inference.py` script facilitates testing of the pre-trained model. Simply specify the path to your video file within the code, and the script will generate predictions.
@@ -79,6 +84,36 @@ Here, `-i` denotes the path to the input video, and `-o` specifies the path to s
 Check out an example showcasing the model's performance:
 
 ![Violence Detection Demo](saves/gif/man_stand.gif)
+
+
+## Gradio Interface
+
+We have integrated a Gradio interface for a more interactive experience with our model. This interface allows users to upload a video and receive an output video with the prediction tag (green for non-violent, red for violent) directly overlaid on the frames.
+
+### Running the Gradio App
+
+To run the Gradio app, follow these steps:
+
+1. Ensure you have all the necessary dependencies installed. If not, you can install them using the `requirements.txt` file:
+
+```bash 
+pip install -r requirements.txt
+```
+2. Run the Gradio interface script:
+
+```bash 
+python gradio_interface.py
+```
+
+This command will start the Gradio app, and you will be provided with a URL to access the interface. You can then upload a video, and the app will process it and display the output video with the prediction tag.
+
+### Usage
+
+- Upload a video file through the Gradio interface.
+- Wait for the processing to complete. The interface will display the output video with the prediction tag overlaid on it.
+- You can download the processed video directly from the interface.
+
+This Gradio interface provides a user-friendly way to interact with our model and visualize its predictions on videos.
 
 
 ## Other Demo
